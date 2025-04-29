@@ -16,7 +16,7 @@ La API de Generación de Fondos procesa imágenes de productos mediante un pipel
 1. **Normalización**: Detecta si la imagen tiene un fondo blanco y extrae propiedades básicas.
 2. **Extracción de Características**: Analiza la orientación y características del producto.
 3. **Generación de Fondos**: Crea una máscara del producto y genera nuevos fondos.
-4. **Post-Producción**: Finaliza la imagen aplicando ajustes necesarios.
+4. **Post-Producción**: Finaliza la imagen aplicando un upscaler para mejorar la resolución de la imagen..
 
 ---
 
@@ -52,7 +52,7 @@ Para procesamiento por lotes o pruebas, ejecuta:
 ```bash
 python scripts/run_pipeline.py
 ```
-Este script procesa imágenes de muestra del directorio data/samples y guarda los resultados en un directorio de ejecución específico.
+Este script procesa imágenes de muestra del directorio data/samples y guarda los resultados en un directorio de ejecución específico data/runs_inference.
 
 ### Ejecutando el Servidor API
 

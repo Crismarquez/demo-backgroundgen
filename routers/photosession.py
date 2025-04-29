@@ -25,7 +25,7 @@ async def stream_pipeline(img_bytes: bytes):
         yield json.dumps({"step": 3, "output": post["output_image"]}) + "\n"
     else:
         post = await orch.blocks["post"].run(img_bytes)
-        yield json.dumps({"step": "post_only", "output": post}) + "\n"
+        yield json.dumps({"step": 3, "output": post["output_image"]}) + "\n"
 
 @router.post("/photography/background", response_class=StreamingResponse)
 async def process(request: PhotographyBackgroundRequest):
