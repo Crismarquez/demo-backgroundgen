@@ -24,7 +24,7 @@ app.add_middleware(
 
 @app.get('/', tags=['home'])
 def message():
-    return HTMLResponse('<h1>Backend MultiAgent Workforce</h1>')
+    return HTMLResponse('<h1>Background Generation API</h1>')
 
 if __name__ == '__main__':
     uvicorn.run('main:app', host='localhost', port=5000)

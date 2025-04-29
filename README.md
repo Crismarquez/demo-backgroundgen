@@ -6,6 +6,8 @@ Tambien expone una API para interactuar con el pipeline.
 ![Technical Diagram](data/technical_diagram.png)
 
 ---
+Usa el playground en [https://photo-magic-flow.onrender.com/](https://photo-magic-flow.onrender.com/) para probar el pipeline.
+---
 
 ## Descripción General
 
@@ -29,8 +31,8 @@ La API de Generación de Fondos procesa imágenes de productos mediante un pipel
 
 1. Clona el repositorio:
     ```bash
-    git clone [URL_DEL_REPOSITORIO]
-    cd [nombre_del_repositorio]
+    git clone https://github.com/Crismarquez/demo-backgroundgen.git
+    cd demo-backgroundgen
     ```
 2. Instala las dependencias:
     ```bash
