@@ -5,7 +5,7 @@ import logging
 import logging.config
 
 from rich.logging import RichHandler
-from dotenv import dotenv_values
+from dotenv import dotenv_values, load_dotenv
 
 
 BASE_DIR = Path(__file__).parent.parent.absolute()
@@ -25,6 +25,7 @@ ENV_VARIABLES = {
     **dotenv_values(BASE_DIR/".env"),  # load environment variables from .env file
     **os.environ,  # load environment variables from the system
 }
+load_dotenv(dotenv_path=BASE_DIR / ".env")
 
 N_IMAGES = 2
 

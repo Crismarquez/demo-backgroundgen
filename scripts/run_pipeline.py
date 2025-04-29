@@ -9,9 +9,10 @@ from typing import Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.pipelines import PipelineOrchestrator
-from config.config import DATA_DIR
+from config.config import DATA_DIR, ENV_VARIABLES
 
-MAX_RUNS = 30
+
+MAX_RUNS = 3
 
 async def run_pipeline_async(image_path: str, preferences: Optional[str] = None) -> str:
     """
