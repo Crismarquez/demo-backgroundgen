@@ -1,0 +1,8 @@
+# Ignorar la carpeta .env
+.venv/**
+
+# Ignorar la carpeta data
+#data/**
+
+# Ignorar Notebooks
+notebooks/**
