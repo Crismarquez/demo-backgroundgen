@@ -15,7 +15,7 @@ from gradio_client import Client, handle_file
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 
-from src.utils import url_to_base64, image_to_base64, base64_to_image, save_base64_to_file, plot_orientation_base64
+from src.utils import url_to_base64, image_to_base64, base64_to_image, save_base64_to_file, plot_orientation_2d_datauri
 from src.prompt import ProductAnalysis, product_analysis_prompt
 from config.config import ENV_VARIABLES
 
@@ -103,7 +103,7 @@ class FeatureExtractionBlock:
         polar = float(result[2])
         rotation = float(result[3])
         
-        orientation_base64 = plot_orientation_base64(azimuth, polar, rotation)
+        orientation_base64 = plot_orientation_2d_datauri(angles=[azimuth, polar, rotation, 1])
 
         return {"img_orientation": orientation_base64}
 

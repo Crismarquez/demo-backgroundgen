@@ -11,89 +11,83 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import base64
 
-def rotation_axes_only(azimuth_deg: float, rotation_deg: float) -> np.ndarray:
+
+def scale(x):
+    # print(x)
+    # if abs(x[0])<0.1 and abs(x[1])<0.1:
+        
+    #     return x*5
+    # else:
+    #     return x
+    return x*3
+
+def get_proj2D_XYZ(phi, theta, gamma):
+    x = np.array([-1*np.sin(phi)*np.cos(gamma) - np.cos(phi)*np.sin(theta)*np.sin(gamma), np.sin(phi)*np.sin(gamma) - np.cos(phi)*np.sin(theta)*np.cos(gamma)])
+    y = np.array([-1*np.cos(phi)*np.cos(gamma) + np.sin(phi)*np.sin(theta)*np.sin(gamma), np.cos(phi)*np.sin(gamma) + np.sin(phi)*np.sin(theta)*np.cos(gamma)])
+    z = np.array([np.cos(theta)*np.sin(gamma), np.cos(theta)*np.cos(gamma)])
+    x = scale(x)
+    y = scale(y)
+    z = scale(z)
+    return x, y, z
+
+def plot_orientation_2d_datauri(angles, background_img=None,
+                                figsize=(6,6), scale=3, linewidth=3,
+                                dpi=100) -> str:
     """
-    Matriz de rotación que solo aplica:
-      1) yaw (azimuth) sobre Z global
-      2) roll (rotation) sobre Z (local)
-    Ignora cualquier pitch/polar.
+    Dibuja las flechas de orientación y devuelve un string:
+    "data:{mime_type};base64,{data}"
     """
-    az = np.deg2rad(azimuth_deg)
-    ro = np.deg2rad(rotation_deg)
+    # 1) Calcula radianes y proyección 3D→2D (incluye tu get_proj2D_XYZ aquí o impórtala)
+    az, pol, rot = angles[0], angles[1], -angles[2]
+    phi, theta, gamma = np.radians(az), np.radians(pol), np.radians(rot)
+    x2d, y2d, z2d = get_proj2D_XYZ(phi, theta, gamma)
+    y2d = -y2d  # invertir eje Y
+    x2d, y2d, z2d = scale * x2d, scale * y2d, scale * z2d
 
-    # yaw sobre Z
-    Rz_az = np.array([
-        [ np.cos(az), -np.sin(az), 0],
-        [ np.sin(az),  np.cos(az), 0],
-        [          0,           0, 1]
-    ])
-    # roll sobre Z
-    Rz_ro = np.array([
-        [ np.cos(ro), -np.sin(ro), 0],
-        [ np.sin(ro),  np.cos(ro), 0],
-        [          0,           0, 1]
-    ])
-
-    # primero yaw, luego roll
-    return Rz_ro @ Rz_az
-
-def plot_orientation_base64(
-    azimuth_deg: float,
-    polar_deg: float,       # Este parámetro queda sin usar
-    rotation_deg: float,
-    fmt: str = "png"
-) -> str:
-    """
-    Genera un Data URI con ejes X,Y,Z:
-      - X (rojo) apuntando al espectador,
-      - Y (verde) horizontal,
-      - Z (azul) vertical,
-    sin que el pitch/polar los incline.
-    """
-    # Determina mime_type
-    suffix = fmt.lower()
-    if suffix in ("jpg","jpeg"):
-        mime_type, fmt = "image/jpeg", "jpeg"
-    elif suffix == "webp":
-        mime_type, fmt = "image/webp", "webp"
-    else:
-        mime_type, fmt = "image/png",   "png"
-
-    # Ejes unitarios en world
-    eX = np.array([1,0,0])
-    eY = np.array([0,1,0])
-    eZ = np.array([0,0,1])
-
-    # Matriz de rotación de ejes (ignora polar)
-    R_axes = rotation_axes_only(azimuth_deg, rotation_deg)
-
-    # world → camera = R_axes^T
-    Xc = R_axes.T @ eX
-    Yc = R_axes.T @ eY
-    Zc = R_axes.T @ eZ
-
-    # Plot 3D
-    fig = plt.figure(figsize=(6,6))
-    ax  = fig.add_subplot(111, projection='3d')
-    fig.patch.set_facecolor('black')
+    # 2) Prepara figura negra
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, facecolor='black')
     ax.set_facecolor('black')
+    ax.set_xlim(-5, 5); ax.set_ylim(-5, 5)
+    ax.axis('off')
 
-    ax.quiver(0,0,0, *Xc, color='red',   linewidth=8, arrow_length_ratio=0.1)
-    ax.quiver(0,0,0, *Yc, color='green', linewidth=8, arrow_length_ratio=0.1)
-    ax.quiver(0,0,0, *Zc, color='blue',  linewidth=8, arrow_length_ratio=0.1)
+    # 3) Dibuja fondo si existe
+    if background_img is not None:
+        bg = background_img.convert("RGB")
+        w, h = bg.size
+        ratio = h/w
+        ext = (-5, 5, -5*ratio, 5*ratio) if h>w else (-5*ratio, 5*ratio, -5, 5)
+        ax.imshow(bg, extent=ext, zorder=0)
 
-    # Vista frontal estricta
-    ax.view_init(elev=0, azim=0)
-    ax.set_xlim([-1,1]); ax.set_ylim([-1,1]); ax.set_zlim([-1,1])
-    ax.set_axis_off()
+    # 4) Dibuja flechas Z→Y→X
+    origin = (0,0)
+    for vec2d, color, label in [
+        (z2d, 'b', 'top'),
+        (y2d, 'g', 'right'),
+        (x2d, 'r', 'front'),
+    ]:
+        ax.quiver(origin[0], origin[1],
+                  vec2d[0], vec2d[1],
+                  angles='xy', scale_units='xy', scale=1,
+                  color=color, linewidth=linewidth)
+        ax.text(vec2d[0]*1.1, vec2d[1]*1.1, label,
+                color=color, fontsize=12)
 
-    # Encode a base64
+    # 5) Guarda en buffer como PNG (fondo negro) y convierte a base64
     buf = BytesIO()
-    plt.savefig(buf, format=fmt, bbox_inches='tight', pad_inches=0)
+    fig.savefig(buf,
+                format='PNG',
+                bbox_inches='tight',
+                pad_inches=0,
+                facecolor=fig.get_facecolor(),
+                transparent=False)
     plt.close(fig)
     buf.seek(0)
-    data = base64.b64encode(buf.read()).decode('ascii')
-    return f"data:{mime_type};base64,{data}"
+    img_bytes = buf.getvalue()
+    encoded = base64.b64encode(img_bytes).decode('ascii')
+    mime_type = 'image/png'
+
+    # 6) Devuelve el data URI
+    return f"data:{mime_type};base64,{encoded}"
 
 async def download_image(session, url):
     try:
