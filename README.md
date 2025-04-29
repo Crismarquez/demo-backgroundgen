@@ -1,6 +1,9 @@
 # Generación de Fondos para Imágenes de Productos
 
-Este proyecto proporciona una API para generar y reemplazar automáticamente fondos en imágenes de productos, especialmente diseñada para aplicaciones de comercio electrónico. Utiliza una arquitectura de pipeline que procesa imágenes a través de varias etapas: normalización, extracción de características, generación de fondos y post-producción.
+Este proyecto implementa un pipeline para generar y reemplazar automáticamente fondos en imágenes de productos, especialmente diseñada para aplicaciones de comercio electrónico. Utiliza una arquitectura de pipeline que procesa imágenes a través de varias etapas: normalización, extracción de características, generación de fondos y post-producción.
+Tambien expone una API para interactuar con el pipeline.
+
+![Technical Diagram](data/technical_diagram.png)
 
 ---
 
@@ -19,7 +22,7 @@ La API de Generación de Fondos procesa imágenes de productos mediante un pipel
 
 ### Requisitos Previos
 
-- Python 3.8+
+- Python 3.10+
 - Paquetes Python requeridos (instalar con `pip install -r requirements.txt`)
 
 ### Configuración
@@ -34,11 +37,20 @@ La API de Generación de Fondos procesa imágenes de productos mediante un pipel
     pip install -r requirements.txt
     ```
 3. Configura las variables de entorno:
-    - Crea un archivo `.env` con las siguientes variables (especificar cuáles, si es necesario).
+    - Crea un archivo `.env` con las variables relacionadas.
 
 ---
 
 ## Uso
+
+### Ejecutando el Script de Pipeline
+
+Para procesamiento por lotes o pruebas, ejecuta:
+
+```bash
+python scripts/run_pipeline.py
+```
+Este script procesa imágenes de muestra del directorio data/samples y guarda los resultados en un directorio de ejecución específico.
 
 ### Ejecutando el Servidor API
 
@@ -57,15 +69,6 @@ El servidor estará disponible en: [http://localhost:5000](http://localhost:5000
 
 ---
 
-## Ejecutando el Script de Pipeline
-
-Para procesamiento por lotes o pruebas, ejecuta:
-
-```bash
-python scripts/run_pipeline.py
-```
-Este script procesa imágenes de muestra del directorio data/samples y guarda los resultados en un directorio de ejecución específico.
-
 
 ## Estructura del Repositorio
 ```bash
@@ -83,9 +86,10 @@ data/                # Directorio de datos: muestras y resultados
 
 ## Detalles Técnicos
 
-El pipeline combina técnicas avanzadas de visión por computadora y modelos de inteligencia artificial para lograr resultados precisos y realistas:
+El pipeline combina técnicas de procesamiento de imagenes y modelos generativos:
 
 - **GPT-4o** (OpenAI): Utilizado para el análisis descriptivo de productos y generación de prompts adaptativos.
 - **Orient-Anything** (Hugging Face): Modelo especializado en detectar la orientación espacial de objetos en imágenes.
+- **evf-sam2** Modelo de segmentación de imágenes basado en SAM.
+- **flux inpainting**  Modelo de inpainting de imágenes.
 - **GrabCut** (OpenCV): Algoritmo clásico de segmentación para generar máscaras de fondo precisas alrededor del producto.
-
